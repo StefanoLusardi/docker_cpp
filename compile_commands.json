@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/stefano/Workspace/docker_cpp/build/Debug/GCC 9.3.0",
+  "command": "/bin/x86_64-linux-gnu-g++-9 -DBUILD_LIB -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -Dlib_EXPORTS -I/home/stefano/Workspace/docker_cpp/lib/include -isystem /home/stefano/.conan/data/spdlog/1.9.2/_/_/package/9f56c118d9cbf9e419e9c21b3a448b9945034e6f/include -isystem /home/stefano/.conan/data/fmt/8.0.1/_/_/package/4eb2d280e3273c9ab04b4c51b456b2a272ff6fc3/include -g -fPIC -std=c++17 -o lib/CMakeFiles/lib.dir/src/lib.cpp.o -c /home/stefano/Workspace/docker_cpp/lib/src/lib.cpp",
+  "file": "/home/stefano/Workspace/docker_cpp/lib/src/lib.cpp"
+},
+{
+  "directory": "/home/stefano/Workspace/docker_cpp/build/Debug/GCC 9.3.0",
+  "command": "/bin/x86_64-linux-gnu-g++-9 -I/home/stefano/Workspace/docker_cpp/lib/include -g -std=c++17 -o app/CMakeFiles/app.dir/main.cpp.o -c /home/stefano/Workspace/docker_cpp/app/main.cpp",
+  "file": "/home/stefano/Workspace/docker_cpp/app/main.cpp"
+}
+]

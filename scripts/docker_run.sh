@@ -1,0 +1,1 @@
+docker run --rm -it --name docker_cpp dkpp:1
