@@ -18,10 +18,9 @@ jobs:
         inputs:
           targetType: 'inline'
           script: |
-            apt update -y
-            apt install -y --no-install-recommends make cmake ninja-build python3.8 pip
-            pip install conan
-            echo ninja --version
+            sudo apt update -y
+            sudo apt install -y --no-install-recommends make cmake ninja-build python3.8 pip
+            sudo pip install conan
       - task: CmdLine@2
         displayName: 'Create Build Folder'
         inputs:
@@ -67,10 +66,9 @@ jobs:
         inputs:
           targetType: 'inline'
           script: |
-            apt update -y
-            apt install -y --no-install-recommends make cmake ninja-build python3.8 pip
-            pip install conan
-            echo ninja --version
+            sudo apt update -y
+            sudo apt install -y --no-install-recommends make cmake ninja-build python3.8 pip
+            sudo pip install conan
       - task: CmdLine@2
         displayName: 'Create Build Folder'
         inputs:
