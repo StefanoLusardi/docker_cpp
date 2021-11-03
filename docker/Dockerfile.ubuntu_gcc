@@ -1,0 +1,25 @@
+FROM ubuntu:20.04 as base
+RUN apt update -y && \
+    apt install -y --no-install-recommends \
+    make \
+    cmake \
+    ninja-build \
+    python3.8 \
+    pip && \
+    pip install conan
+
+FROM base as build
+RUN apt install -y gcc-9 g++-9 --no-install-recommends
+ENV CC=gcc-9
+ENV CXX=g++-9
+ENV BUILD_TYPE=Release
+
+COPY . /docker_cpp/
+WORKDIR /docker_cpp/build
+RUN cmake -G Ninja -D CMAKE_BUILD_TYPE=${BUILD_TYPE} .. && \
+    cmake --build . --config ${BUILD_TYPE}
+
+FROM ubuntu:20.04 as final
+COPY --from=build /docker_cpp/build/bin/ /docker_cpp/bin/
+COPY --from=build /docker_cpp/build/lib/ /docker_cpp/lib/
+CMD [ "./docker_cpp/bin/app" ]
