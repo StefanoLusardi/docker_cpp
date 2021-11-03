@@ -1,21 +1,20 @@
 #pragma once 
 
 #include <gtest/gtest.h>
+#include <lib/lib.hpp>
 
-namespace vc { class raw_frame; }
-
-namespace vc::test
+namespace dkpp::test
 {
 
-class raw_frame_test : public ::testing::Test
+class test_lib : public ::testing::Test
 {
 protected:
-    explicit raw_frame_test() { }
-    virtual ~raw_frame_test() { }
+    explicit test_lib() : _lib{ std::make_unique<dkpp::lib>()} { }
+    virtual ~test_lib() { }
     virtual void SetUp() override { }
     virtual void TearDown() override { }
 
-    std::unique_ptr<vc::raw_frame> raw_frame;
+    std::unique_ptr<dkpp::lib> _lib;
 
 private:
     template<typename... Args>

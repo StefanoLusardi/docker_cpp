@@ -1,51 +1,28 @@
-message("")
-message("::::::::::::::::::::::")
-message("::VideoCapture:: Tests")
-message("")
+set(PROJECT_NAME unit_test)
 
-set(TARGET_NAME video_capture_tests)
+set(TEST_SOURCES 
+    src/main.cpp
+    src/test_lib.cpp)
+
+set(TEST_HEADERS 
+    include/test_lib.hpp)
 
 conan_cmake_configure(
-    GENERATORS cmake_find_package
     REQUIRES gtest/1.10.0
-    OPTIONS gtest:no_main=True
-    OUTPUT_QUIET
-)
-conan_cmake_autodetect(conan_settings)
-conan_cmake_install(
-    PATH_OR_REFERENCE .
-    BUILD missing
-    SETTINGS ${conan_settings}
-    OUTPUT_QUIET
-)
+    GENERATORS cmake_find_package
+    IMPORTS "bin, *.dll -> ../bin"
+    IMPORTS "lib, *.so* -> ../lib"
+    IMPORTS "lib, *.dylib* -> ../bin")
+conan_cmake_autodetect(settings)
+conan_cmake_install(PATH_OR_REFERENCE . BUILD missing SETTINGS ${settings})
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/tests)
-
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 find_package(GTest COMPONENTS GTest REQUIRED)
 
-set(VCPP_TEST_SOURCES 
-    src/video_capture_test.cpp
-    src/raw_frame_test.cpp
-)
-
-set(VCPP_TEST_HEADERS 
-    include/video_capture_test.hpp
-    include/raw_frame_test.hpp
-)
-
-add_executable(${TARGET_NAME}
-	src/main.cpp
-	${VCPP_TEST_HEADERS}
-	${VCPP_TEST_SOURCES}
-)
-
-target_link_libraries(${TARGET_NAME} 
-	PRIVATE video_capture 
-	PRIVATE GTest::GTest
-)
-
-target_include_directories(${TARGET_NAME} PRIVATE include)
+add_executable(${PROJECT_NAME} ${TEST_HEADERS} ${TEST_SOURCES})
+target_link_libraries(${PROJECT_NAME} PRIVATE lib PRIVATE GTest::GTest)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 include(GoogleTest)
-gtest_add_tests(TARGET ${TARGET_NAME})
-# gtest_discover_tests(${TARGET_NAME})
+gtest_add_tests(TARGET ${PROJECT_NAME})
+# gtest_discover_tests(${PROJECT_NAME})
