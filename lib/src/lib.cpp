@@ -1,6 +1,5 @@
 #include <lib/lib.hpp>
-#include <iostream>
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 namespace dkpp
 {
@@ -12,10 +11,9 @@ lib::~lib() noexcept
 {
 }
 
-void lib::print() const
+void lib::print(const std::string_view msg) const
 {
-    spdlog::info("Hello docker_cpp!");
-    // std::cout << "Hello docker_cpp!" << std::endl;
+    spdlog::info(msg);
 }
 
 }
