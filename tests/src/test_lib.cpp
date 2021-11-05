@@ -5,7 +5,7 @@ namespace dkpp::test
 TEST_F(test_lib, test_1)
 { 
     _lib->print("docker_cpp test");
-    ASSERT_TRUE(true));
+    ASSERT_TRUE(true);
 }
 
 TEST_F(test_lib, test_2)

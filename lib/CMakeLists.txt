@@ -8,7 +8,7 @@ set(LIB_HEADERS
     include/lib/lib.hpp)
 
 conan_cmake_configure(
-    REQUIRES spdlog/1.9.2 OPTIONS spdlog:shared=True 
+    REQUIRES spdlog/1.9.2 OPTIONS spdlog:shared=False 
     GENERATORS cmake_find_package
     IMPORTS "bin, *.dll -> ../bin"
     IMPORTS "lib, *.so* -> ../lib"
@@ -21,7 +21,7 @@ find_package(spdlog)
 
 set(CMAKE_INSTALL_RPATH "$ORIGIN;$ORIGIN/../lib")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
-add_library(${PROJECT_NAME} SHARED ${LIB_SOURCES} ${LIB_HEADERS})
+add_library(${PROJECT_NAME} STATIC ${LIB_SOURCES} ${LIB_HEADERS})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 target_compile_definitions(${PROJECT_NAME} PRIVATE BUILD_LIB)

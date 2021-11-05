@@ -31,7 +31,7 @@ include(${CMAKE_BINARY_DIR}/conan.cmake)
 add_subdirectory(lib)
 add_subdirectory(app)
 
-option(BUILD_TESTS "Build library unit tests" ON)
+option(BUILD_TESTS "Build library unit tests" OFF)
 if(${BUILD_TESTS})
     enable_testing()
     add_subdirectory(tests)
