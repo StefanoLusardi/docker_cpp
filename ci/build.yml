@@ -1,0 +1,144 @@
+trigger:
+- main
+
+jobs:
+
+  - job: Ubuntu2004_gcc9
+    displayName: Ubuntu 20.04 - gcc-9
+    timeoutInMinutes: 15
+    pool:
+      vmImage: 'ubuntu-20.04'
+    variables:
+      CC: gcc-9
+      CXX: g++-9
+      BUILD_DIRECTORY: $(Build.SourcesDirectory)/build
+    steps:
+      - task: Bash@3
+        displayName: 'Install Build Tools'
+        inputs:
+          targetType: 'inline'
+          script: |
+            sudo apt update -y
+            sudo apt install -y --no-install-recommends make cmake ninja-build python3.8 pip
+            sudo pip install conan
+      - task: CmdLine@2
+        displayName: 'Create Build Folder'
+        inputs:
+          script: mkdir build
+          workingDirectory: $(Build.SourcesDirectory)
+      - task: CmdLine@2
+        displayName: 'Configure'
+        inputs:
+          script: cmake -G Ninja -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) .. 
+          workingDirectory: $(BUILD_DIRECTORY)
+      - task: CmdLine@2
+        displayName: 'Build'
+        inputs:
+          script: cmake --build . --config $(BUILD_TYPE)
+          workingDirectory: $(BUILD_DIRECTORY)
+      - task: CmdLine@2
+        displayName: 'Unit Test'
+        continueOnError: true
+        inputs:
+          script: 'ctest . --build-config $(BUILD_TYPE) --output-on-failure --timeout 60 -T Test -VV -j10'
+          workingDirectory: $(BUILD_DIRECTORY)
+      - task: PublishTestResults@2
+        displayName: 'Publish Results'
+        continueOnError: true
+        inputs:
+          testResultsFormat: 'cTest'
+          testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
+          testRunTitle: 'Test Results - gcc-9'
+
+
+  - job: Ubuntu2004_clang10
+    displayName: Ubuntu 20.04 - clang-10
+    timeoutInMinutes: 15
+    pool:
+      vmImage: 'ubuntu-20.04'
+    variables:
+      CC: clang-10
+      CXX: clang++-10
+      BUILD_DIRECTORY: $(Build.SourcesDirectory)/build
+    steps:
+      - task: Bash@3
+        displayName: 'Install Build Tools'
+        inputs:
+          targetType: 'inline'
+          script: |
+            sudo apt update -y
+            sudo apt install -y --no-install-recommends make cmake ninja-build python3.8 pip
+            sudo pip install conan
+      - task: CmdLine@2
+        displayName: 'Create Build Folder'
+        inputs:
+          script: mkdir build
+          workingDirectory: $(Build.SourcesDirectory)
+      - task: CmdLine@2
+        displayName: 'Configure'
+        inputs:
+          script: cmake -G Ninja -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) .. 
+          workingDirectory: $(BUILD_DIRECTORY)
+      - task: CmdLine@2
+        displayName: 'Build'
+        inputs:
+          script: cmake --build . --config $(BUILD_TYPE)
+          workingDirectory: $(BUILD_DIRECTORY)
+      - task: CmdLine@2
+        displayName: 'Unit Test'
+        continueOnError: true
+        inputs:
+          script: 'ctest . --build-config $(BUILD_TYPE) --output-on-failure --timeout 60 -T Test -VV -j10'
+          workingDirectory: $(BUILD_DIRECTORY)
+      - task: PublishTestResults@2
+        displayName: 'Publish Results'
+        continueOnError: true
+        inputs:
+          testResultsFormat: 'cTest'
+          testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
+          testRunTitle: 'Test Results - clang-10'
+
+
+  - job: Windows2019_msvc2019
+    condition: false
+    displayName: Windows 2019 - msvc-2019
+    timeoutInMinutes: 15
+    pool:
+      vmImage: 'windows-2019'
+    variables:
+      BUILD_DIRECTORY: $(Build.SourcesDirectory)/build
+    steps:
+      - task: CmdLine@2
+        displayName: 'Install Ninja'
+        inputs:
+          script: |
+            choco install --accept-license -y Ninja
+            ninja --version
+      - task: CmdLine@2
+        displayName: 'Create Build Folder'
+        inputs:
+          script: mkdir build
+          workingDirectory: $(Build.SourcesDirectory)
+      - task: CmdLine@2
+        displayName: 'Configure'
+        inputs:
+          script: cmake -G Ninja -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) .. 
+          workingDirectory: $(BUILD_DIRECTORY)
+      - task: CmdLine@2
+        displayName: 'Build'
+        inputs:
+          script: cmake --build . --config $(BUILD_TYPE)
+          workingDirectory: $(BUILD_DIRECTORY)
+      - task: CmdLine@2
+        displayName: 'CMake - Run CTest'
+        continueOnError: true
+        inputs:
+          script: ctest . --build-config $(BUILD_TYPE) --output-on-failure --timeout 60 -T Test -VV -j10
+          workingDirectory: $(BUILD_DIRECTORY)
+      - task: PublishTestResults@2
+        displayName: 'Publish test results'
+        continueOnError: true
+        inputs:
+          testResultsFormat: 'cTest'
+          testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
+          testRunTitle: 'Test Results - msvc-2019'
