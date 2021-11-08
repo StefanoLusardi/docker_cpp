@@ -162,7 +162,7 @@ stages:
           - task: CmdLine@2
             displayName: 'Run Unit Test'
             inputs:
-              script: docker run --rm -it --name docker_cpp_test_gcc dkpp_test:gcc
+              script: docker run --rm --name docker_cpp_test_gcc dkpp_test:gcc
           - task: CmdLine@2
             displayName: 'Build App'
             inputs:
@@ -170,4 +170,4 @@ stages:
           - task: CmdLine@2
             displayName: 'Run App'
             inputs:
-              script: docker run --rm -it --name docker_cpp_gcc dkpp:gcc
+              script: docker run --rm --name docker_cpp_gcc dkpp:gcc
