@@ -1,5 +1,9 @@
-**/*build*
-**/*scripts*
+.git/
+.vscode/
+
+/build
+/scripts
+/docker
 
 compile_commands.json
 LICENSE

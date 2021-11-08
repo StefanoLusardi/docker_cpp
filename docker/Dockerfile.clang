@@ -5,21 +5,27 @@ RUN apt update -y && \
     cmake \
     ninja-build \
     python3.8 \
-    pip && \
+    pip \
+    clang && \
     pip install conan
 
-FROM base as build
-RUN apt install -y clang --no-install-recommends
+
 ENV CC=/usr/bin/clang
 ENV CXX=/usr/bin/clang++
 ENV BUILD_TYPE=Release
-
 COPY . /docker_cpp/
+
+FROM base as build
 WORKDIR /docker_cpp/build
 RUN cmake -G Ninja -D CMAKE_BUILD_TYPE=${BUILD_TYPE} -D UNIT_TEST=OFF .. && \
     cmake --build . --config ${BUILD_TYPE}
 
-# FROM ubuntu:20.04 as final
+FROM base as test
+WORKDIR /docker_cpp/build
+RUN cmake -G Ninja -D CMAKE_BUILD_TYPE=${BUILD_TYPE} -D UNIT_TESTS=ON .. && \
+    cmake --build . --config ${BUILD_TYPE}
+ENTRYPOINT [ "ctest" ]
+
 FROM scratch as final
 COPY --from=build /docker_cpp/build/bin/ /docker_cpp/bin/
 COPY --from=build /docker_cpp/build/lib/ /docker_cpp/lib/
