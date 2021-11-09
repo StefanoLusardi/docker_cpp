@@ -3,11 +3,13 @@ trigger:
 
 stages:
   - stage: Local
+    dependsOn: []
     jobs:
 
       - job: Ubuntu2004_gcc9
         displayName: Ubuntu 20.04 - gcc-9
         timeoutInMinutes: 15
+        condition: False
         pool:
           vmImage: 'ubuntu-20.04'
         variables:
@@ -51,9 +53,9 @@ stages:
               testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
               testRunTitle: 'Test Results - gcc-9'
 
-
       - job: Ubuntu2004_clang10
         displayName: Ubuntu 20.04 - clang-10
+        condition: False
         timeoutInMinutes: 15
         pool:
           vmImage: 'ubuntu-20.04'
@@ -97,7 +99,6 @@ stages:
               testResultsFormat: 'cTest'
               testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
               testRunTitle: 'Test Results - clang-10'
-
 
       - job: Windows2019_msvc2019
         displayName: Windows 2019 - msvc-2019
@@ -144,6 +145,8 @@ stages:
 
 
   - stage: Container
+    dependsOn: []
+    condition: False
     jobs:
 
       - job: Docker_gcc9
