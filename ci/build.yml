@@ -125,12 +125,14 @@ stages:
             inputs:
               script: |
                 call "$(MSVC_DEV_ENV)" -arch=amd64 -host_arch=amd64
-                cmake -G Ninja -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) .. 
+                cmake -G Ninja -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) ..
               workingDirectory: $(BUILD_DIRECTORY)
           - task: CmdLine@2
             displayName: 'Build'
             inputs:
-              script: cmake --build . --config $(BUILD_TYPE)
+              script: |
+                call "$(MSVC_DEV_ENV)" -arch=amd64 -host_arch=amd64
+                cmake --build . --config $(BUILD_TYPE)
               workingDirectory: $(BUILD_DIRECTORY)
           - task: CmdLine@2
             displayName: 'Unit Test'
@@ -240,4 +242,4 @@ stages:
             displayName: 'Run App'
             inputs:
               script: docker run --rm --name docker_cpp_clang dkpp:clang
-          
+
