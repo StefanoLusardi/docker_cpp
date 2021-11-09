@@ -109,11 +109,11 @@ stages:
           BUILD_DIRECTORY: $(Build.SourcesDirectory)/build
         steps:
           - task: CmdLine@2
-            displayName: 'Install Ninja'
+            displayName: 'Install Build Tools'
             inputs:
               script: |
                 choco install --accept-license -y Ninja
-                ninja --version
+                pip install conan
           - task: CmdLine@2
             displayName: 'Create Build Folder'
             inputs:
@@ -130,7 +130,7 @@ stages:
               script: cmake --build . --config $(BUILD_TYPE)
               workingDirectory: $(BUILD_DIRECTORY)
           - task: CmdLine@2
-            displayName: 'CMake - Run CTest'
+            displayName: 'Unit Test'
             continueOnError: true
             inputs:
               script: ctest . --build-config $(BUILD_TYPE) --output-on-failure --timeout 60 -T Test -VV -j10
