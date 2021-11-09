@@ -152,8 +152,6 @@ stages:
         pool:
           vmImage: 'macOS-10.15'
         variables:
-          CC: clang-10
-          CXX: clang++-10
           BUILD_DIRECTORY: $(Build.SourcesDirectory)/build
         steps:
           - task: CmdLine@2
