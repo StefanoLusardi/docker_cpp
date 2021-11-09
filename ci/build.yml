@@ -9,7 +9,6 @@ stages:
       - job: Ubuntu2004_gcc9
         displayName: Ubuntu 20.04 - gcc-9
         timeoutInMinutes: 15
-        condition: False
         pool:
           vmImage: 'ubuntu-20.04'
         variables:
@@ -46,16 +45,15 @@ stages:
               script: 'ctest . --build-config $(BUILD_TYPE) --output-on-failure --timeout 60 -T Test -VV -j10'
               workingDirectory: $(BUILD_DIRECTORY)
           - task: PublishTestResults@2
-            displayName: 'Publish Results'
+            displayName: 'Publish Test Results'
             continueOnError: true
             inputs:
               testResultsFormat: 'cTest'
               testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
-              testRunTitle: 'Test Results - gcc-9'
+              testRunTitle: 'Test Results - Ubuntu 20.04 - gcc-9'
 
       - job: Ubuntu2004_clang10
         displayName: Ubuntu 20.04 - clang-10
-        condition: False
         timeoutInMinutes: 15
         pool:
           vmImage: 'ubuntu-20.04'
@@ -93,12 +91,12 @@ stages:
               script: 'ctest . --build-config $(BUILD_TYPE) --output-on-failure --timeout 60 -T Test -VV -j10'
               workingDirectory: $(BUILD_DIRECTORY)
           - task: PublishTestResults@2
-            displayName: 'Publish Results'
+            displayName: 'Publish Test Results'
             continueOnError: true
             inputs:
               testResultsFormat: 'cTest'
               testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
-              testRunTitle: 'Test Results - clang-10'
+              testRunTitle: 'Test Results - Ubuntu 20.04 - clang-10'
 
       - job: Windows2019_msvc2019
         displayName: Windows 2019 - msvc-2019
@@ -126,7 +124,6 @@ stages:
               script: |
                 call "$(MSVC_DEV_ENV)" -arch=amd64 -host_arch=amd64
                 cmake -G Ninja -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) ..
-                cmake --build . --config $(BUILD_TYPE)
               workingDirectory: $(BUILD_DIRECTORY)
           - task: CmdLine@2
             displayName: 'Build'
@@ -142,15 +139,63 @@ stages:
               script: ctest . --build-config $(BUILD_TYPE) --output-on-failure --timeout 60 -T Test -VV -j10
               workingDirectory: $(BUILD_DIRECTORY)
           - task: PublishTestResults@2
-            displayName: 'Publish test results'
+            displayName: 'Publish Test Results'
             continueOnError: true
             inputs:
               testResultsFormat: 'cTest'
               testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
-              testRunTitle: 'Test Results - msvc-2019'
+              testRunTitle: 'Test Results - Windows 2019 - msvc-2019'
 
-      - job: MacOS1015_clang10
-        displayName: MacOS 1015 - clang-10
+      - job: Windows2016_msvc2017
+        displayName: Windows 2016 - msvc-2017
+        timeoutInMinutes: 15
+        pool:
+          vmImage: 'vs2017-win2016'
+        variables:
+          BUILD_DIRECTORY: $(Build.SourcesDirectory)/build
+          MSVC_DEV_ENV: "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/Common7/Tools/VsDevCmd.bat"
+        steps:
+          - task: CmdLine@2
+            displayName: 'Install Build Tools'
+            inputs:
+              script: |
+                choco install --accept-license -y Ninja
+                pip install conan
+          - task: CmdLine@2
+            displayName: 'Create Build Folder'
+            inputs:
+              script: mkdir build
+              workingDirectory: $(Build.SourcesDirectory)
+          - task: CmdLine@2
+            displayName: 'Configure'
+            inputs:
+              script: |
+                call "$(MSVC_DEV_ENV)" -arch=amd64 -host_arch=amd64
+                cmake -G Ninja -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) ..
+              workingDirectory: $(BUILD_DIRECTORY)
+          - task: CmdLine@2
+            displayName: 'Build'
+            inputs:
+              script: |
+                call "$(MSVC_DEV_ENV)" -arch=amd64 -host_arch=amd64
+                cmake --build . --config $(BUILD_TYPE)
+              workingDirectory: $(BUILD_DIRECTORY)
+          - task: CmdLine@2
+            displayName: 'Unit Test'
+            continueOnError: true
+            inputs:
+              script: ctest . --build-config $(BUILD_TYPE) --output-on-failure --timeout 60 -T Test -VV -j10
+              workingDirectory: $(BUILD_DIRECTORY)
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            continueOnError: true
+            inputs:
+              testResultsFormat: 'cTest'
+              testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
+              testRunTitle: 'Test Results - Windows2016 - msvc-2017'
+
+      - job: MacOS1015_clang12
+        displayName: MacOS 1015 - clang-12
         timeoutInMinutes: 15
         pool:
           vmImage: 'macOS-10.15'
@@ -185,17 +230,59 @@ stages:
               script: 'ctest . --build-config $(BUILD_TYPE) --output-on-failure --timeout 60 -T Test -VV -j10'
               workingDirectory: $(BUILD_DIRECTORY)
           - task: PublishTestResults@2
-            displayName: 'Publish Results'
+            displayName: 'Publish Test Results'
             continueOnError: true
             inputs:
               testResultsFormat: 'cTest'
               testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
-              testRunTitle: 'Test Results - MacOS - clang-10'
+              testRunTitle: 'Test Results - MacOS 10.15 - clang-12'
+
+      - job: MacOS1014_clang11
+        displayName: MacOS 10.14 - clang-11
+        timeoutInMinutes: 15
+        pool:
+          vmImage: 'macOS-10.14'
+        variables:
+          BUILD_DIRECTORY: $(Build.SourcesDirectory)/build
+        steps:
+          - task: CmdLine@2
+            displayName: 'Install Build Tools'
+            inputs:
+              script: |
+                brew install ninja
+                pipx install conan
+          - task: CmdLine@2
+            displayName: 'Create Build Folder'
+            inputs:
+              script: mkdir build
+              workingDirectory: $(Build.SourcesDirectory)
+          - task: CmdLine@2
+            displayName: 'Configure'
+            inputs:
+              script: cmake -G Ninja -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) .. 
+              workingDirectory: $(BUILD_DIRECTORY)
+          - task: CmdLine@2
+            displayName: 'Build'
+            inputs:
+              script: cmake --build . --config $(BUILD_TYPE)
+              workingDirectory: $(BUILD_DIRECTORY)
+          - task: CmdLine@2
+            displayName: 'Unit Test'
+            continueOnError: true
+            inputs:
+              script: 'ctest . --build-config $(BUILD_TYPE) --output-on-failure --timeout 60 -T Test -VV -j10'
+              workingDirectory: $(BUILD_DIRECTORY)
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            continueOnError: true
+            inputs:
+              testResultsFormat: 'cTest'
+              testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
+              testRunTitle: 'Test Results - MacOS 10.14 - clang-11'
 
 
   - stage: Container
     dependsOn: []
-    condition: False
     jobs:
 
       - job: Docker_gcc9
