@@ -107,6 +107,7 @@ stages:
           vmImage: 'windows-2019'
         variables:
           BUILD_DIRECTORY: $(Build.SourcesDirectory)/build
+          MSVC_DEV_ENV: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/Tools/VsDevCmd.bat"
         steps:
           - task: CmdLine@2
             displayName: 'Install Build Tools'
@@ -122,7 +123,9 @@ stages:
           - task: CmdLine@2
             displayName: 'Configure'
             inputs:
-              script: cmake -G Ninja -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) .. 
+              script: |
+                call "$(MSVC_DEV_ENV)" -arch=amd64 -host_arch=amd64
+                cmake -G Ninja -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) .. 
               workingDirectory: $(BUILD_DIRECTORY)
           - task: CmdLine@2
             displayName: 'Build'
@@ -142,6 +145,51 @@ stages:
               testResultsFormat: 'cTest'
               testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
               testRunTitle: 'Test Results - msvc-2019'
+
+      - job: MacOS1015_clang10
+        displayName: MacOS 1015 - clang-10
+        timeoutInMinutes: 15
+        pool:
+          vmImage: 'macOS-10.15'
+        variables:
+          CC: clang-10
+          CXX: clang++-10
+          BUILD_DIRECTORY: $(Build.SourcesDirectory)/build
+        steps:
+          - task: CmdLine@2
+            displayName: 'Install Build Tools'
+            inputs:
+              script: |
+                brew install ninja
+                pipx install conan
+          - task: CmdLine@2
+            displayName: 'Create Build Folder'
+            inputs:
+              script: mkdir build
+              workingDirectory: $(Build.SourcesDirectory)
+          - task: CmdLine@2
+            displayName: 'Configure'
+            inputs:
+              script: cmake -G Ninja -D CMAKE_BUILD_TYPE=$(BUILD_TYPE) .. 
+              workingDirectory: $(BUILD_DIRECTORY)
+          - task: CmdLine@2
+            displayName: 'Build'
+            inputs:
+              script: cmake --build . --config $(BUILD_TYPE)
+              workingDirectory: $(BUILD_DIRECTORY)
+          - task: CmdLine@2
+            displayName: 'Unit Test'
+            continueOnError: true
+            inputs:
+              script: 'ctest . --build-config $(BUILD_TYPE) --output-on-failure --timeout 60 -T Test -VV -j10'
+              workingDirectory: $(BUILD_DIRECTORY)
+          - task: PublishTestResults@2
+            displayName: 'Publish Results'
+            continueOnError: true
+            inputs:
+              testResultsFormat: 'cTest'
+              testResultsFiles: '$(BUILD_DIRECTORY)/Testing/*/Test.xml'
+              testRunTitle: 'Test Results - MacOS - clang-10'
 
 
   - stage: Container
