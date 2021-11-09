@@ -15,10 +15,9 @@ stages:
           CXX: g++-9
           BUILD_DIRECTORY: $(Build.SourcesDirectory)/build
         steps:
-          - task: Bash@3
+          - task: CmdLine@2
             displayName: 'Install Build Tools'
             inputs:
-              targetType: 'inline'
               script: |
                 sudo apt update -y
                 sudo apt install -y --no-install-recommends make cmake ninja-build python3.8 pip
@@ -63,10 +62,9 @@ stages:
           CXX: clang++-10
           BUILD_DIRECTORY: $(Build.SourcesDirectory)/build
         steps:
-          - task: Bash@3
+          - task: CmdLine@2
             displayName: 'Install Build Tools'
             inputs:
-              targetType: 'inline'
               script: |
                 sudo apt update -y
                 sudo apt install -y --no-install-recommends make cmake ninja-build python3.8 pip
@@ -102,7 +100,6 @@ stages:
 
 
       - job: Windows2019_msvc2019
-        condition: false
         displayName: Windows 2019 - msvc-2019
         timeoutInMinutes: 15
         pool:
@@ -171,3 +168,27 @@ stages:
             displayName: 'Run App'
             inputs:
               script: docker run --rm --name docker_cpp_gcc dkpp:gcc
+
+      - job: Docker_clang10
+        displayName: Docker - clang-10
+        timeoutInMinutes: 15
+        pool:
+          vmImage: 'ubuntu-20.04'
+        steps:
+          - task: CmdLine@2
+            displayName: 'Build Unit Test'
+            inputs:
+              script: docker build -f docker/Dockerfile.clang --rm -t dkpp_test:clang --target test .
+          - task: CmdLine@2
+            displayName: 'Run Unit Test'
+            inputs:
+              script: docker run --rm --name docker_cpp_test_clang dkpp_test:clang
+          - task: CmdLine@2
+            displayName: 'Build App'
+            inputs:
+              script: docker build -f docker/Dockerfile.clang --rm -t dkpp:clang .
+          - task: CmdLine@2
+            displayName: 'Run App'
+            inputs:
+              script: docker run --rm --name docker_cpp_clang dkpp:clang
+          
