@@ -7,15 +7,7 @@ set(LIB_HEADERS
     include/lib/api.hpp
     include/lib/lib.hpp)
 
-conan_cmake_configure(
-    REQUIRES spdlog/1.9.2 OPTIONS spdlog:shared=False 
-    GENERATORS cmake_find_package
-    IMPORTS "bin, *.dll -> ../bin"
-    IMPORTS "lib, *.so* -> ../lib"
-    IMPORTS "lib, *.dylib* -> ../bin")
-conan_cmake_autodetect(settings)
-conan_cmake_install(PATH_OR_REFERENCE . BUILD missing SETTINGS ${settings})
-
+conan_cmake_run(CONANFILE conanfile.py BUILD missing)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 find_package(spdlog)
 

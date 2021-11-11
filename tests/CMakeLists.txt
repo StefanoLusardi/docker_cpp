@@ -7,15 +7,7 @@ set(TEST_SOURCES
 set(TEST_HEADERS 
     include/test_lib.hpp)
 
-conan_cmake_configure(
-    REQUIRES gtest/1.10.0
-    GENERATORS cmake_find_package
-    IMPORTS "bin, *.dll -> ../bin"
-    IMPORTS "lib, *.so* -> ../lib"
-    IMPORTS "lib, *.dylib* -> ../bin")
-conan_cmake_autodetect(settings)
-conan_cmake_install(PATH_OR_REFERENCE . BUILD missing SETTINGS ${settings})
-
+conan_cmake_run(CONANFILE conanfile.py BUILD missing)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 find_package(GTest COMPONENTS GTest REQUIRED)
 
