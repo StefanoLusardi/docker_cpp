@@ -1,28 +1,51 @@
 FROM ubuntu:20.04 as base
-RUN apt update -y && \
-    apt install -y --no-install-recommends \
-    make \
-    cmake \
-    ninja-build \
-    python3.8 \
-    gcc-9 \
-    g++-9 \
-    pip && \
-    pip install conan
 
-ENV CC=gcc-9
-ENV CXX=g++-9
+# Setup Build tools
+RUN apt-get update -qq && export DEBIAN_FRONTEND=noninteractive && \
+    apt-get install -y --no-install-recommends \
+    make cmake ninja-build gcc-10 g++-10 \
+    python3.8 python3-pip
+ENV CC=gcc-10
+ENV CXX=g++-10
+
+# Setup Conan
+RUN python3 -m pip install --upgrade pip setuptools && \
+    python3 -m pip install conan && \
+    conan profile new default --detect && \
+    conan profile update settings.compiler.libcxx=libstdc++11 default
+ENV CONAN_SYSREQUIRES_SUDO 0
+ENV CONAN_SYSREQUIRES_MODE enabled
+
+# Install Conan packages
+WORKDIR /docker_cpp
+COPY /lib/conanfile.txt lib/conanfile.txt
 ENV BUILD_TYPE=Release
+WORKDIR build/${BUILD_TYPE}
+RUN conan install ../../lib/conanfile.txt --build missing
 
-RUN apt install -y --no-install-recommends libgtk2.0-dev
-
-COPY /lib/conanfile.txt /docker_cpp/
-
-# RUN conan install ../lib/conanfile.txt -s build_type=Release -s compiler.libcxx=libstdc++11
+# Copy source code
+WORKDIR /docker_cpp
 COPY . /docker_cpp/
-WORKDIR /docker_cpp/build
-RUN echo @@##@@
-RUN cmake -G Ninja -D CMAKE_BUILD_TYPE=${BUILD_TYPE} -D UNIT_TESTS=OFF .. && \
-    cmake --build . --config ${BUILD_TYPE}
+
+# CMake Configure
+WORKDIR build/${BUILD_TYPE}
+RUN cmake -G Ninja \
+    -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+    -D BUILD_SHARED_LIBS=OFF \
+    -D UNIT_TESTS=OFF \
+    ../..
+
+# CMake Build
+RUN cmake --build . --config ${BUILD_TYPE}
+
+# CMake Install
+# RUN cmake --install . --prefix "/docker_cpp/install"
+
+FROM ubuntu:20.04 as publish
+COPY --from=base /docker_cpp/build/${BUILD_TYPE}/bin/ /docker_cpp
+# COPY --from=build /docker_cpp/install/ /docker_cpp
+
+# ENTRYPOINT ["/bin/bash"]
+CMD [ "./docker_cpp/app" ]
 
 ENTRYPOINT ["/bin/bash"]

@@ -1,11 +1,10 @@
 [requires]
 spdlog/1.9.2
-opencv/4.5.3
+opencv/4.5.5
 
 [generators]
 cmake_find_package
 
 [options]
-opencv:with_ffmpeg=False
 
 [imports]
