@@ -42,10 +42,9 @@ RUN cmake --build . --config ${BUILD_TYPE}
 # RUN cmake --install . --prefix "/docker_cpp/install"
 
 FROM ubuntu:20.04 as publish
+ENV BUILD_TYPE=Release
 COPY --from=base /docker_cpp/build/${BUILD_TYPE}/bin/ /docker_cpp
 # COPY --from=build /docker_cpp/install/ /docker_cpp
 
 # ENTRYPOINT ["/bin/bash"]
 CMD [ "./docker_cpp/app" ]
-
-ENTRYPOINT ["/bin/bash"]
