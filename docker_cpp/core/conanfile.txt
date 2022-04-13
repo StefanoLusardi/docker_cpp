@@ -1,0 +1,10 @@
+[requires]
+spdlog/1.10.0
+#paho-mqtt-cpp/1.2.0
+
+[generators]
+cmake_find_package
+
+[options]
+
+[imports]

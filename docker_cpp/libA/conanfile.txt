@@ -1,0 +1,10 @@
+[requires]
+#opencv/4.5.5
+spdlog/1.10.0
+
+[generators]
+cmake_find_package
+
+[options]
+
+[imports]

@@ -8,4 +8,8 @@ export DEBIAN_FRONTEND=noninteractive
 
 mkdir -p ../build/Release
 cd ../build/Release
-conan install ../../lib/conanfile.txt --build missing --update
+
+conan install ../../docker_cpp/libA/conanfile.txt --build missing --update
+conan install ../../docker_cpp/libB/conanfile.txt --build missing --update
+conan install ../../docker_cpp/core/conanfile.txt --build missing --update
+conan install ../../docker_cpp/unit_tests/conanfile.txt --build missing --update

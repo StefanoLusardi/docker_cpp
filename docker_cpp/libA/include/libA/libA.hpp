@@ -3,14 +3,14 @@
 #include "api.hpp"
 #include <string_view>
 
-namespace dkpp
+namespace dkpp::A
 {
 // class API_LIB lib
-class lib
+class libA
 {
 public:
-    explicit lib() noexcept;
-    ~lib() noexcept;   
+    explicit libA() noexcept;
+    ~libA() noexcept;   
     void print(const std::string_view msg) const;
 };
 
