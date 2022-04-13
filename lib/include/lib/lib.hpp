@@ -5,7 +5,8 @@
 
 namespace dkpp
 {
-class API_LIB lib
+// class API_LIB lib
+class lib
 {
 public:
     explicit lib() noexcept;

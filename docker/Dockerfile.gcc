@@ -1,40 +1,50 @@
 FROM ubuntu:20.04 as base
-RUN apt update -y && \
-    apt install -y --no-install-recommends \
-    make \
-    cmake \
-    ninja-build \
-    python3.8 \
-    pip \
-    gcc-9 \
-    g++-9 && \
-    pip install conan
 
-ENV CC=gcc-9
-ENV CXX=g++-9
+# Setup Build tools
+RUN apt-get update -qq && export DEBIAN_FRONTEND=noninteractive && \
+    apt-get install -y --no-install-recommends \
+    make cmake ninja-build gcc-10 g++-10 \
+    python3.8 python3-pip
+ENV CC=gcc-10
+ENV CXX=g++-10
+
+# Setup Conan
+RUN python3 -m pip install --upgrade pip setuptools && \
+    python3 -m pip install conan && \
+    conan profile new default --detect && \
+    conan profile update settings.compiler.libcxx=libstdc++11 default
+ENV CONAN_SYSREQUIRES_SUDO 0
+ENV CONAN_SYSREQUIRES_MODE enabled
+
+# Install Conan packages
+WORKDIR /docker_cpp
+COPY /lib/conanfile.txt lib/conanfile.txt
 ENV BUILD_TYPE=Release
+WORKDIR build/${BUILD_TYPE}
+RUN conan install ../../lib/conanfile.txt --build missing
+
+# Copy source code
+WORKDIR /docker_cpp
 COPY . /docker_cpp/
 
-FROM base as build
-WORKDIR /docker_cpp/build
-RUN cmake -G Ninja -D CMAKE_BUILD_TYPE=${BUILD_TYPE} -D UNIT_TESTS=OFF .. && \
-    cmake --build . --config ${BUILD_TYPE}
+# CMake Configure
+WORKDIR build/${BUILD_TYPE}
+RUN cmake -G Ninja \
+    -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+    -D BUILD_SHARED_LIBS=OFF \
+    -D UNIT_TESTS=OFF \
+    ../..
 
-FROM base as test
-WORKDIR /docker_cpp/build
-RUN cmake -G Ninja -D CMAKE_BUILD_TYPE=${BUILD_TYPE} -D UNIT_TESTS=ON .. && \
-    cmake --build . --config ${BUILD_TYPE}
-ENTRYPOINT [ "ctest" ]
+# CMake Build
+RUN cmake --build . --config ${BUILD_TYPE}
 
-FROM scratch as final
-COPY --from=build /docker_cpp/build/bin/ /docker_cpp/bin/
-COPY --from=build /docker_cpp/build/lib/ /docker_cpp/lib/
+# CMake Install
+# RUN cmake --install . --prefix "/docker_cpp/install"
 
-COPY --from=build /lib/x86_64-linux-gnu/libpthread.so.0 /lib/x86_64-linux-gnu/libpthread.so.0
-COPY --from=build /lib/x86_64-linux-gnu/libstdc++.so.6 /lib/x86_64-linux-gnu/libstdc++.so.6
-COPY --from=build /lib/x86_64-linux-gnu/libgcc_s.so.1 /lib/x86_64-linux-gnu/libgcc_s.so.1
-COPY --from=build /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/libc.so.6
-COPY --from=build /lib64/ld-linux-x86-64.so.2 /lib64/ld-linux-x86-64.so.2
-COPY --from=build /lib/x86_64-linux-gnu/libm.so.6 /lib/x86_64-linux-gnu/libm.so.6
+FROM ubuntu:20.04 as publish
+ENV BUILD_TYPE=Release
+COPY --from=base /docker_cpp/build/${BUILD_TYPE}/bin/ /docker_cpp
+# COPY --from=build /docker_cpp/install/ /docker_cpp
 
-CMD [ "./docker_cpp/bin/app" ]
+# ENTRYPOINT ["/bin/bash"]
+CMD [ "./docker_cpp/app" ]
