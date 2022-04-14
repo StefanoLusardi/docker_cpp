@@ -47,8 +47,9 @@ RUN cmake -G Ninja \
 RUN cmake --build . --config ${BUILD_TYPE}
 
 # CMake Install
-RUN cmake --install . --prefix "/docker_cpp/"
+RUN cmake --install . --prefix "/docker_cpp/install"
 
 FROM ubuntu:20.04 as publish
-COPY --from=base /docker_cpp/ /docker_cpp
-CMD [ "./docker_cpp/app" ]
+COPY --from=base /docker_cpp/install /docker_cpp
+WORKDIR /docker_cpp
+CMD [ "./app" ]
