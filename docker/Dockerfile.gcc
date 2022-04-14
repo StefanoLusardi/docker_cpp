@@ -12,16 +12,25 @@ ENV CXX=g++-10
 RUN python3 -m pip install --upgrade pip setuptools && \
     python3 -m pip install conan && \
     conan profile new default --detect && \
+    conan profile update settings.compiler=gcc default && \
+    conan profile update settings.compiler.version=10 default && \
     conan profile update settings.compiler.libcxx=libstdc++11 default
 ENV CONAN_SYSREQUIRES_SUDO 0
 ENV CONAN_SYSREQUIRES_MODE enabled
 
 # Install Conan packages
 WORKDIR /docker_cpp
-COPY /lib/conanfile.txt lib/conanfile.txt
+COPY /docker_cpp/libA/conanfile.txt docker_cpp/libA/conanfile.txt
+COPY /docker_cpp/libB/conanfile.txt docker_cpp/libB/conanfile.txt
+COPY /docker_cpp/core/conanfile.txt docker_cpp/core/conanfile.txt
+COPY /docker_cpp/unit_tests/conanfile.txt docker_cpp/unit_tests/conanfile.txt
+
 ENV BUILD_TYPE=Release
 WORKDIR build/${BUILD_TYPE}
-RUN conan install ../../lib/conanfile.txt --build missing
+RUN conan install ../../docker_cpp/libA -s build_type=${BUILD_TYPE} --build missing
+RUN conan install ../../docker_cpp/libB -s build_type=${BUILD_TYPE} --build missing
+RUN conan install ../../docker_cpp/core -s build_type=${BUILD_TYPE} --build missing
+RUN conan install ../../docker_cpp/unit_tests -s build_type=${BUILD_TYPE} --build missing
 
 # Copy source code
 WORKDIR /docker_cpp
@@ -31,7 +40,6 @@ COPY . /docker_cpp/
 WORKDIR build/${BUILD_TYPE}
 RUN cmake -G Ninja \
     -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-    -D BUILD_SHARED_LIBS=OFF \
     -D UNIT_TESTS=OFF \
     ../..
 
@@ -39,12 +47,8 @@ RUN cmake -G Ninja \
 RUN cmake --build . --config ${BUILD_TYPE}
 
 # CMake Install
-RUN cmake --install . --prefix "/docker_cpp/install"
+RUN cmake --install . --prefix "/docker_cpp/"
 
 FROM ubuntu:20.04 as publish
-ENV BUILD_TYPE=Release
-COPY --from=base /docker_cpp/build/${BUILD_TYPE}/bin/ /docker_cpp
-# COPY --from=build /docker_cpp/install/ /docker_cpp
-
-# ENTRYPOINT ["/bin/bash"]
+COPY --from=base /docker_cpp/ /docker_cpp
 CMD [ "./docker_cpp/app" ]
