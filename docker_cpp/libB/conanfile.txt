@@ -1,8 +1,8 @@
 [requires]
 spdlog/1.10.0
-#date/3.0.1
-#nlohmann_json/3.10.5
-#stduuid/1.2.2
+date/3.0.1
+nlohmann_json/3.10.5
+stduuid/1.2.2
 
 [generators]
 cmake_find_package

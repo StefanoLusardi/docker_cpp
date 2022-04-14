@@ -23,3 +23,8 @@ target_link_libraries(${TARGET_NAME}
 target_compile_definitions(${TARGET_NAME} PRIVATE BUILD_LIB)
 target_include_directories(${TARGET_NAME} PUBLIC include)
 set_target_properties(${TARGET_NAME} PROPERTIES VERSION ${docker_cpp_VERSION} SOVERSION ${docker_cpp_VERSION_MAJOR})
+
+install(TARGETS ${TARGET_NAME}
+    RUNTIME DESTINATION "."
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)

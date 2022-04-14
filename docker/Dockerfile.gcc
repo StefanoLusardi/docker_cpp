@@ -39,7 +39,7 @@ RUN cmake -G Ninja \
 RUN cmake --build . --config ${BUILD_TYPE}
 
 # CMake Install
-# RUN cmake --install . --prefix "/docker_cpp/install"
+RUN cmake --install . --prefix "/docker_cpp/install"
 
 FROM ubuntu:20.04 as publish
 ENV BUILD_TYPE=Release

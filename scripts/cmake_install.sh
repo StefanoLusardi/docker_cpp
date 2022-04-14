@@ -1,1 +1,0 @@
-cmake --install . --prefix "/install"
