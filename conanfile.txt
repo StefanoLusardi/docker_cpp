@@ -1,5 +1,6 @@
 [requires]
 spdlog/1.9.2
+gtest/1.11.0
 
 [generators]
 cmake_find_package

@@ -17,7 +17,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory(docker_cpp/lib)
 add_subdirectory(docker_cpp/app)
 
-option(UNIT_TESTS "Build library unit tests" OFF)
+option(UNIT_TESTS "Build library unit tests" ON)
 if(${UNIT_TESTS})
     enable_testing()
     add_subdirectory(docker_cpp/tests)

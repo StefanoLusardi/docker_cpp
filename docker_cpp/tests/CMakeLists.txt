@@ -1,20 +1,17 @@
-set(PROJECT_NAME unit_test)
+set(TARGET_NAME unit_test)
 
 set(TEST_SOURCES 
     src/main.cpp
-    src/test_lib.cpp)
-
-set(TEST_HEADERS 
+    src/test_lib.cpp
     include/test_lib.hpp)
 
-conan_cmake_run(CONANFILE conanfile.py BUILD missing)
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
-find_package(GTest COMPONENTS GTest REQUIRED)
+find_package(GTest)
 
-add_executable(${PROJECT_NAME} ${TEST_HEADERS} ${TEST_SOURCES})
-target_link_libraries(${PROJECT_NAME} PRIVATE lib PRIVATE GTest::GTest)
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+add_executable(${TARGET_NAME} ${TEST_SOURCES})
+
+target_compile_features(${TARGET_NAME} PUBLIC cxx_std_17)
+target_link_libraries(${TARGET_NAME} PRIVATE lib PRIVATE GTest::gtest)
+target_include_directories(${TARGET_NAME} PRIVATE include)
 
 include(GoogleTest)
-gtest_add_tests(TARGET ${PROJECT_NAME})
-# gtest_discover_tests(${PROJECT_NAME})
+gtest_discover_tests(${TARGET_NAME})

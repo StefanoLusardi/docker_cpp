@@ -1,1 +1,1 @@
-docker run --rm -it --name docker_cpp docker_cpp:gcc
+docker run --rm -it --name docker_cpp docker_cpp:latest

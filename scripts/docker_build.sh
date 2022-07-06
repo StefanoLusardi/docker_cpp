@@ -1,1 +1,1 @@
-docker build -f docker/Dockerfile.gcc --rm -t docker_cpp:gcc .
+docker build -f Dockerfile --rm -t docker_cpp:latest .
