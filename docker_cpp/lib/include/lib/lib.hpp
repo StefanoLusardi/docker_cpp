@@ -11,7 +11,7 @@ class lib
 public:
     explicit lib() noexcept;
     ~lib() noexcept;   
-    void print(const std::string_view msg) const;
+    void print(std::string_view msg) const;
 };
 
 }

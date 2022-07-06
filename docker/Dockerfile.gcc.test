@@ -41,17 +41,17 @@ RUN  conan install . \
 # Copy source code
 COPY . .
 
-FROM base AS build
+FROM base AS test
 
 # CMake Configure
-RUN cmake -G Ninja -D CMAKE_BUILD_TYPE=${BUILD_TYPE} -B ./build/${BUILD_TYPE} -S .
+RUN cmake -G Ninja \
+    -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+    -D UNIT_TESTS=ON \
+    -B ./build/${BUILD_TYPE} \
+    -S .
 
 # CMake Build
 RUN cmake --build ./build/${BUILD_TYPE} --config ${BUILD_TYPE}
 
-# CMake Install
-RUN cmake --install ./build/${BUILD_TYPE} --prefix ./install
-
-FROM ubuntu:20.04 AS publish
-COPY --from=build /docker_cpp/install /docker_cpp
-CMD [ "./docker_cpp/app" ]
+# CTest Run
+RUN ctest .
